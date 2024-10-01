@@ -1,6 +1,8 @@
-# TrackMyBudget API - http://54.151.251.222/swagger
+# TrackMyBudget API
 
 **TrackMyBudget** is a simple .NET Core Web API for managing budget entries. It supports basic CRUD operations to create, view, update, and delete budget records.
+
+http://54.151.251.222/swagger
 
 ## Features
 - **Create**: Add a new budget entry (category, amount, start date, end date).
@@ -122,20 +124,20 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 
 8. Step 7: Set Up Nginx as a Reverse Proxy. To make your application publicly accessible on port 80, we'll use Nginx as a reverse proxy.
    - 8.1. Install Nginx:
-   -    ```
+       ```
          sudo yum install nginx -y
         ```
    - 8.2. Start and enable Nginx:
-   -    ```
+       ```
          sudo systemctl start nginx
          sudo systemctl enable nginx
         ```
    - 8.3. Configure Nginx: Open the Nginx configuration file:
-   -    ```
+       ```
          sudo nano /etc/nginx/nginx.conf
         ```
    - 8.4. Find the ```http``` block and replace the existing server block with the following configuration: Save and exit the file (CTRL+X, then Y, then Enter).
-   -    ```
+       ```
          server {
           listen 80;
           server_name 54.151.251.222; // This is the Public IP
@@ -152,7 +154,7 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
         ```
         
    - 8.5. Restart Nginx to apply the configuration:
-   -    ```
+       ```
            sudo systemctl restart nginx
         ```
 
