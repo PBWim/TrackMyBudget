@@ -14,22 +14,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up .NET Core in the environment
+      # Step 2: Change directory to the project folder (Update this path if your project is in a subdirectory)
+      - name: Change directory to project folder
+        run: cd TrackMyBudget/TrackMyBudget
+        
+      # Step 3: Set up .NET Core in the environment
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '8.0.x'
 
-      # Step 3: Build the project and publish it to a folder
+      # Step 4: Build the project and publish it to a folder
       - name: Publish .NET Core API
         run: dotnet publish -c Release -o ./publish
 
-      # Step 4: Copy the published files to the EC2 instance using SCP
+      # Step 5: Copy the published files to the EC2 instance using SCP
       - name: Copy files to EC2
         run: |
           scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} -r ./publish/* ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/home/ec2-user/TrackMyBudget
 
-      # Step 5: SSH into the EC2 instance and restart the service
+      # Step 6: SSH into the EC2 instance and restart the service
       - name: SSH into EC2 and restart service
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} "sudo systemctl restart trackmybudget"
