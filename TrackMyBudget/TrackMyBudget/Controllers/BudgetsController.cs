@@ -17,25 +17,25 @@ namespace TrackMyBudget.Controllers
         }
 
         // GET: api/budgets/{id}
-        //[HttpGet("{id}")]
-        //public ActionResult<Budget> GetBudget(Guid id)
-        //{
-        //    var budget = Budgets.FirstOrDefault(b => b.Id == id);
-        //    if (budget == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(budget);
-        //}
+        [HttpGet("{id}")]
+        public ActionResult<Budget> GetBudget(Guid id)
+        {
+            var budget = Budgets.FirstOrDefault(b => b.Id == id);
+            if (budget == null)
+            {
+                return NotFound();
+            }
+            return Ok(budget);
+        }
 
         // POST: api/budgets
-        //[HttpPost]
-        //public ActionResult<Budget> CreateBudget(Budget budget)
-        //{
-        //    budget.Id = Guid.NewGuid();
-        //    Budgets.Add(budget);
-        //    return CreatedAtAction(nameof(GetBudget), new { id = budget.Id }, budget);
-        //}
+        [HttpPost]
+        public ActionResult<Budget> CreateBudget(Budget budget)
+        {
+            budget.Id = Guid.NewGuid();
+            Budgets.Add(budget);
+            return CreatedAtAction(nameof(GetBudget), new { id = budget.Id }, budget);
+        }
 
         // PUT: api/budgets/{id}
         [HttpPut("{id}")]
