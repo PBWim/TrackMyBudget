@@ -27,7 +27,9 @@ jobs:
 
       # Step 4: Run Unit Tests
       - name: Run Unit Tests
-        run: dotnet test
+        run: 
+            cd TrackMyBudget/Tests  # Change this path to where your test project is located
+            dotnet test
         
       # Step 5: Create the .ssh directory and write the EC2 private key to a file
       - name: Create SSH key file
