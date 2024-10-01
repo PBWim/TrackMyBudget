@@ -1,4 +1,4 @@
-# TrackMyBudget API
+# TrackMyBudget API - http://54.151.251.222/swagger
 
 **TrackMyBudget** is a simple .NET Core Web API for managing budget entries. It supports basic CRUD operations to create, view, update, and delete budget records.
 
@@ -85,26 +85,27 @@ ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey
 2. Once connected, install the .NET Core Runtime and ASP.NET Core runtime using the following commands)
 ```
 sudo rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
-sudo yum install dotnet-runtime-8.0
+sudo yum install dotnet-sdk-8.0 -y
 ```
 
-3. Deploy .NET Core Application. Publish Application on your local machine: Run this from the clone directory in a new CMD. ```C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudget>```.
+3. Deploy .NET Core Application. Publish Application on your local machine: Run this from the clone directory in a **new CMD**. ```C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudget>```.
 ```
 dotnet publish -c Release -o ./publish
 ```
+   - Since you're likely only using HTTP (port 5000) without an SSL certificate configured, you can safely disable HTTPS redirection in your application. So remember to comment out ```// app.UseHttpsRedirection();``` before this publish. 
 
 4. Transfer the Published Files to the EC2 Instance: In the same CMD, run the ```scp -i /path/to/your-key.pem -r ./publish ec2-user@<your-ec2-public-ip>:/home/ec2-user/TrackMyBudget``` :
    Transfer your app’s published files from your local machine to the EC2 instance.
 ```
-scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
+scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
 ```
 
 5. Navigate to the Directory on the EC2 instance: Use the EC2 Instance Terminal.
 ```
-cd ~/TrackMyBudget
+cd /home/ec2-user/TrackMyBudget
 ```
 
-6. Run the Application: Start your application using dotnet. If dotnet not installed, install first. Remember to navigate to ```cd /home/ec2-user```.
+6. Run the Application: Start your application using dotnet. If dotnet not installed, install first. Remember to navigate to ```cd /home/ec2-user``` when need to install.
 ```
 sudo rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 
@@ -113,9 +114,54 @@ sudo yum install dotnet-runtime-8.0
 sudo yum install dotnet-sdk-8.0
 ```
 
-
 7. Navigate to the Directory on the EC2 instance again and run the application :
 ```
 cd /home/ec2-user/TrackMyBudget
-dotnet TrackMyBudget.dll
+dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 ```
+
+8. Step 7: Set Up Nginx as a Reverse Proxy. To make your application publicly accessible on port 80, we'll use Nginx as a reverse proxy.
+   - 8.1. Install Nginx:
+   -    ```
+         sudo yum install nginx -y
+        ```
+   - 8.2. Start and enable Nginx:
+   -    ```
+         sudo systemctl start nginx
+         sudo systemctl enable nginx
+        ```
+   - 8.3. Configure Nginx: Open the Nginx configuration file:
+   -    ```
+         sudo nano /etc/nginx/nginx.conf
+        ```
+   - 8.4. Find the ```http``` block and replace the existing server block with the following configuration: Save and exit the file (CTRL+X, then Y, then Enter).
+   -    ```
+         server {
+          listen 80;
+          server_name 54.151.251.222; // This is the Public IP
+
+          location / {
+              proxy_pass http://localhost:5000;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection keep-alive;
+              proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+             }
+         }
+        ```
+        
+   - 8.5. Restart Nginx to apply the configuration:
+   -    ```
+           sudo systemctl restart nginx
+        ```
+
+9. Adjust EC2 Security Group. In the AWS Management Console, go to EC2 > Instances > Select your instance > Security Groups. Edit the Inbound Rules to ensure HTTP (port 80) is open to the public.
+   - Type: HTTP
+   - Port Range: 80
+   - Source: 0.0.0.0/0 (or anywhere you want to allow access)
+
+10. Access Your API Publicly
+    - ```
+         http://54.151.251.222/swagger
+      ```
