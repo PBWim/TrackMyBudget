@@ -101,6 +101,8 @@ dotnet publish -c Release -o ./publish
 ```
 scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
 ```
+   - ```./publish/*```: This selects all files in the publish directory (the newly built files).
+   - ```/home/ec2-user/TrackMyBudget```: This is the destination directory on your EC2 instance where the application files are stored.
 
 5. Navigate to the Directory on the EC2 instance: Use the EC2 Instance Terminal.
 ```
@@ -167,3 +169,31 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
     - ```
          http://54.151.251.222/swagger
       ```
+
+
+----
+
+## Deploy Code Changes Again
+
+1. Rebuild the Application Locally and transfer the Updated Files to EC2 :
+   - ```
+      dotnet publish -c Release -o ./publish
+      scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
+     ```
+
+2. Restart Your Application on EC2 and Navigate to the project directory.
+   - ```
+      ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222
+      cd /home/ec2-user/TrackMyBudget
+     ```
+
+3. Stop the currently running application and Then, kill the process:
+   - ```
+     ps aux | grep dotnet
+     kill <PID>
+     ```
+     
+4. Run the updated application: Start your updated application again:
+   - ```
+     dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
+     ```
