@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main
+      - main   # Change this if you use a different branch for production
 
 jobs:
   deploy:
@@ -14,30 +14,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Log the current directory (useful for debugging)
-      - name: Log current directory
-        run: pwd
-
-      # Step 3: List the contents of the current directory
+      # Step 2: Change directory to the project folder (Update this path if your project is in a subdirectory)
+      - name: Change directory to project folder
+        run: cd TrackMyBudget
+      
+       # Step 3: List the contents of the current directory
       - name: List directory contents
         run: ls -la
-
-      # Step 4: Set up .NET Core
+        
+      # Step 3: Set up .NET Core in the environment
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '8.0.x'
 
-      # Step 5: Publish the .NET Core API (you might need to update the path to your project)
+      # Step 4: Build the project and publish it to a folder
       - name: Publish .NET Core API
-        run: dotnet publish ./src/TrackMyBudget/TrackMyBudget.csproj -c Release -o ./publish
+        run: dotnet publish -c Release -o ./publish
 
-      # Step 6: Copy files to EC2 using SCP
+      # Step 5: Copy the published files to the EC2 instance using SCP
       - name: Copy files to EC2
         run: |
           scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} -r ./publish/* ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/home/ec2-user/TrackMyBudget
 
-      # Step 7: SSH into EC2 and restart the service
+      # Step 6: SSH into the EC2 instance and restart the service
       - name: SSH into EC2 and restart service
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} "sudo systemctl restart trackmybudget"
