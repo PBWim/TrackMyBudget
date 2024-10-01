@@ -200,3 +200,16 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
    - ```
      dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
      ```
+
+
+----
+
+## Set Up the GitHub Actions Workflow (Automate Deployments)
+
+1. Create the GitHub Actions Workflow File - .github/workflows/deploy.yml
+2. Check this file to understand the steps : https://github.com/PBWim/TrackMyBudget/blob/main/.github/workflows/deploy.yml
+3. Set Up necessary GitHub Secrets :
+   - Go to your repository on GitHub. Click on the Settings tab. Scroll down to Secrets and variables > Actions > New repository secret.
+   - Add the following secrets: **EC2_PUBLIC_IP** , **EC2_KEY** (Open your .pem file in a text editor, copy the content, and paste it without spaces as the value for this secret.)
+   - Since the **EC2_KEY** is stored as a GitHub Secret, it needs to be written to a file before you can use it for SCP. So add a step in the GitHub Actions workflow to create the key file from the secret.
+4. Push Code and Trigger the Workflow. And access Your Application.
