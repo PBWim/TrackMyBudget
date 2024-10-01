@@ -25,9 +25,10 @@ jobs:
           ls -la  # To confirm we're in the right directory
           dotnet publish -c Release -o ./publish
 
-      # Step 4: Write the EC2 private key to a file (using GitHub Secrets)
+      # Step 4: Create the .ssh directory and write the EC2 private key to a file
       - name: Create SSH key file
         run: |
+          mkdir -p /home/runner/.ssh
           echo "${{ secrets.EC2_KEY }}" > /home/runner/.ssh/TrackMyBudgetKey.pem
           chmod 600 /home/runner/.ssh/TrackMyBudgetKey.pem
 
