@@ -29,13 +29,13 @@ namespace TrackMyBudget.Controllers
         //}
 
         // POST: api/budgets
-        [HttpPost]
-        public ActionResult<Budget> CreateBudget(Budget budget)
-        {
-            budget.Id = Guid.NewGuid();
-            Budgets.Add(budget);
-            return CreatedAtAction(nameof(GetBudget), new { id = budget.Id }, budget);
-        }
+        //[HttpPost]
+        //public ActionResult<Budget> CreateBudget(Budget budget)
+        //{
+        //    budget.Id = Guid.NewGuid();
+        //    Budgets.Add(budget);
+        //    return CreatedAtAction(nameof(GetBudget), new { id = budget.Id }, budget);
+        //}
 
         // PUT: api/budgets/{id}
         [HttpPut("{id}")]
