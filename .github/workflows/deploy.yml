@@ -16,7 +16,7 @@ jobs:
 
       # Step 2: Change directory to the project folder (Update this path if your project is in a subdirectory)
       - name: Change directory to project folder
-        run: cd TrackMyBudget/TrackMyBudget
+        run: cd TrackMyBudget
         
       # Step 3: Set up .NET Core in the environment
       - name: Set up .NET Core
