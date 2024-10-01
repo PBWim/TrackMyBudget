@@ -14,9 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+       # Step 3: List the contents of the current directory
+      - name: List directory contents
+        run: ls -la
+        
       # Step 2: Change directory to the project folder (Update this path if your project is in a subdirectory)
       - name: Change directory to project folder
-        run: cd /TrackMyBudget/TrackMyBudget
+        run: cd TrackMyBudget/TrackMyBudget
       
        # Step 3: List the contents of the current directory
       - name: List directory contents
