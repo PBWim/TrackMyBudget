@@ -125,6 +125,9 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 ```
 
 8. Step 7: Set Up Nginx as a Reverse Proxy. To make your application publicly accessible on port 80, we'll use Nginx as a reverse proxy.
+
+   - Your .NET Core API is running on port 5000, which is typically not exposed to the public internet directly. Nginx forwards requests from port 80 (standard HTTP) to port 5000. This allows users to access your API using the standard port 80.
+
    - 8.1. Install Nginx:
        ```
          sudo yum install nginx -y
