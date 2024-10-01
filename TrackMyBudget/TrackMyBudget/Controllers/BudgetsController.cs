@@ -7,7 +7,7 @@ namespace TrackMyBudget.Controllers
     [ApiController]
     public class BudgetsController : Controller
     {
-        private static readonly List<Budget> Budgets = [];
+        public static readonly List<Budget> Budgets = [];
 
         // GET: api/budgets
         [HttpGet]
