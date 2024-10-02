@@ -213,3 +213,33 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
    - Add the following secrets: **EC2_PUBLIC_IP** , **EC2_KEY** (Open your .pem file in a text editor, copy the content, and paste it without spaces as the value for this secret.)
    - Since the **EC2_KEY** is stored as a GitHub Secret, it needs to be written to a file before you can use it for SCP. So add a step in the GitHub Actions workflow to create the key file from the secret.
 4. Push Code and Trigger the Workflow. And access Your Application.
+
+
+----
+
+## AWS CloudWatch Logging and Monitoring
+
+* When your application (whether it's running locally, on EC2, or any other environment) needs to interact with AWS services, such as CloudWatch, it requires authentication and authorization to ensure that only authorized applications or users can access those services.
+* Your application needs to authenticate itself to AWS so AWS knows who is trying to access its services. This is typically done using Access Key ID and Secret Access Key (for IAM Users) or using IAM Roles (when running on EC2, Lambda, etc.).
+* Even after authenticating the user or application, AWS needs to verify that the authenticated entity has the right permissions to perform actions such as writing logs to CloudWatch.
+     - The IAM User or IAM Role needs to have the CloudWatch permissions (like logs:CreateLogStream, logs:PutLogEvents, etc.) to create log streams and send log data to CloudWatch.
+     - Since your application is deployed on an EC2 instance, it's recommended to use an IAM Role attached to your EC2 instance instead of using an IAM User with Access Keys.
+     - The IAM Role will automatically provide temporary credentials to your EC2 instance for logging to CloudWatch without needing to manually configure access keys. So if we are using IAM Role, then no need to update anything in the Workflows script as well.
+
+* Serilog Configuration:
+     - In the Program.cs file, we configured Serilog to handle structured logging.
+     - We used the AWS CloudWatch Logs sink (send logs to different destinations.  In this case, we configured Serilog to use the AWS CloudWatch Logs sink.) in Serilog to send logs to CloudWatch.
+     - The logs are formatted in JSON using the ```CompactJsonFormatter``` for structured logging.
+     - The log group used in CloudWatch was defined in the Serilog configuration with the option to automatically create the log group if it doesn’t exist.
+
+* Log Levels:
+     - We set up logging levels in the appsettings.json file to control which logs are captured.
+     - Unnecessary logs from ASP.NET Core (like Request starting, Request finished) were suppressed by setting LogLevel and Serilog MinimumLevel to Warning for specific namespaces.
+ 
+* By setting up **CloudWatch Alarms**, you can monitor your EC2 instances and application metrics in real-time, respond quickly to issues, and automate actions based on specific conditions. This we can see from the Cloudwatch dashboard as well as a graph.
+     - Trigger an alarm when CPU usage exceeds 80% for more than 5 minutes.
+     - Metric: CPUUtilization
+     - Threshold: Above 80% // refers to the value that a metric must reach or exceed (or drop below) to trigger an alarm
+     - Period: 5 minutes
+     - Condition: Greater/Equal to 80%
+     - Notification: Send an email via SNS.
