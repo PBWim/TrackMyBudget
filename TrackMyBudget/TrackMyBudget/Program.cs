@@ -32,11 +32,17 @@ internal class Program
                 }, new AmazonCloudWatchLogsClient());  // AWS CloudWatch Logs client
         });
 
+        // Register Health Check services
+        builder.Services.AddHealthChecks();
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+
+        // Enable health check endpoint
+        app.UseHealthChecks("/health");
 
         // Configure the HTTP request pipeline.
         app.UseSwagger();
