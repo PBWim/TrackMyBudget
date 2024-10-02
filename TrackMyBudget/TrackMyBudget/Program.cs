@@ -9,6 +9,9 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Read LogGroupName from configuration
+        var logGroupName = builder.Configuration["Serilog:CloudWatchLogGroupName"];
+
         // Clear default logging providers to avoid duplicate logging
         builder.Logging.ClearProviders();  // Removes default logging providers like Console, Debug, etc.
 
@@ -21,7 +24,7 @@ internal class Program
                 .WriteTo.Console()  // Optional: Logs to console
                 .WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
                 {
-                    LogGroupName = "TrackMyBudgetLogs",  // CloudWatch log group name
+                    LogGroupName = logGroupName,  // CloudWatch log group name
                     MinimumLogEventLevel = LogEventLevel.Information,  // Minimum log level
                     CreateLogGroup = true,  // Create the log group if not exists
                     LogStreamNameProvider = new DefaultLogStreamProvider(),
