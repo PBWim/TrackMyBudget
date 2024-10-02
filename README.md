@@ -243,3 +243,12 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
      - Period: 5 minutes
      - Condition: Greater/Equal to 80%
      - Notification: Send an email via SNS.
+ 
+
+----
+
+## Health Check
+http://54.151.251.222/health
+
+1. A dedicated endpoint (usually ```/health```) that reports the health status of the application.
+2. This we can enhance more to check the DB connectivity etc as well.
