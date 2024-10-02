@@ -1,23 +1,50 @@
-var builder = WebApplication.CreateBuilder(args);
+using Amazon.CloudWatchLogs;
+using Serilog;
+using Serilog.Sinks.AwsCloudWatch;
+using Serilog.Events;
 
-// Add services to the container.
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        // Clear default logging providers to avoid duplicate logging
+        builder.Logging.ClearProviders();  // Removes default logging providers like Console, Debug, etc.
 
-var app = builder.Build();
+        // Correct Serilog setup to read from appsettings.json
+        builder.Host.UseSerilog((context, services, configuration) =>
+        {
+            configuration
+                .ReadFrom.Configuration(context.Configuration)  // Reads Serilog config from appsettings.json
+                .Enrich.FromLogContext()  // Adds contextual information to logs
+                .WriteTo.Console()  // Optional: Logs to console
+                .WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
+                {
+                    LogGroupName = "TrackMyBudgetLogs",  // CloudWatch log group name
+                    MinimumLogEventLevel = LogEventLevel.Information,  // Minimum log level
+                    CreateLogGroup = true,  // Create the log group if not exists
+                    LogStreamNameProvider = new DefaultLogStreamProvider(),
+                    TextFormatter = new Serilog.Formatting.Compact.CompactJsonFormatter()  // JSON format for structured logs
+                }, new AmazonCloudWatchLogsClient());  // AWS CloudWatch Logs client
+        });
 
-// Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI();
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
+        var app = builder.Build();
 
-app.UseHttpsRedirection();
+        // Configure the HTTP request pipeline.
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
-app.UseAuthorization();
+        app.UseHttpsRedirection();
+        app.UseAuthorization();
+        app.MapControllers();
 
-app.MapControllers();
+        app.Run();
 
-app.Run();
+        Log.CloseAndFlush();
+    }
+}

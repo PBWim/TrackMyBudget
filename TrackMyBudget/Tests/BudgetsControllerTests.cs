@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Tests.Helper;
 using TrackMyBudget.Controllers;
 using TrackMyBudget.Models;
@@ -9,11 +11,15 @@ namespace Tests
     public class BudgetsControllerTests
     {
         private readonly BudgetsController _controller;
+        private readonly Mock<ILogger<BudgetsController>> _loggerMock;
 
         public BudgetsControllerTests()
         {
-            // Initialize the controller
-            _controller = new BudgetsController();
+            // Initialize the mock logger
+            _loggerMock = new Mock<ILogger<BudgetsController>>();
+
+            // Initialize the controller with the mock logger
+            _controller = new BudgetsController(_loggerMock.Object);
         }
 
         [Fact, TestPriority(1)]
@@ -36,6 +42,15 @@ namespace Tests
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Warning),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("not found")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(3)]
@@ -52,6 +67,15 @@ namespace Tests
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnBudget = Assert.IsType<Budget>(okResult.Value);
             Assert.Equal(budget.Id, returnBudget.Id);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("retrieved successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(4)]
@@ -67,6 +91,15 @@ namespace Tests
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var returnBudget = Assert.IsType<Budget>(createdResult.Value);
             Assert.Equal(budget.Category, returnBudget.Category);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("created successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(5)]
@@ -80,6 +113,15 @@ namespace Tests
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Warning),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("not found for update")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(6)]
@@ -98,6 +140,15 @@ namespace Tests
             Assert.IsType<NoContentResult>(result);
             Assert.Equal("Updated Category", budget.Category);
             Assert.Equal(500, budget.Amount);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("updated successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(7)]
@@ -108,6 +159,15 @@ namespace Tests
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Warning),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("not found for deletion")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         [Fact, TestPriority(8)]
@@ -123,6 +183,15 @@ namespace Tests
             // Assert
             Assert.IsType<NoContentResult>(result);
             Assert.DoesNotContain(budget, BudgetsController.Budgets);
+
+            // Verify logging
+            _loggerMock.Verify(logger => logger.Log(
+                It.Is<LogLevel>(logLevel => logLevel == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("deleted successfully")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }
