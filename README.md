@@ -217,7 +217,7 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 
 ----
 
-## AWS CloudWatch Logging
+## AWS CloudWatch Logging and Monitoring
 
 * When your application (whether it's running locally, on EC2, or any other environment) needs to interact with AWS services, such as CloudWatch, it requires authentication and authorization to ensure that only authorized applications or users can access those services.
 * Your application needs to authenticate itself to AWS so AWS knows who is trying to access its services. This is typically done using Access Key ID and Secret Access Key (for IAM Users) or using IAM Roles (when running on EC2, Lambda, etc.).
@@ -236,3 +236,10 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
      - We set up logging levels in the appsettings.json file to control which logs are captured.
      - Unnecessary logs from ASP.NET Core (like Request starting, Request finished) were suppressed by setting LogLevel and Serilog MinimumLevel to Warning for specific namespaces.
  
+* By setting up **CloudWatch Alarms**, you can monitor your EC2 instances and application metrics in real-time, respond quickly to issues, and automate actions based on specific conditions. This we can see from the Cloudwatch dashboard as well as a graph.
+     - Trigger an alarm when CPU usage exceeds 80% for more than 5 minutes.
+     - Metric: CPUUtilization
+     - Threshold: Above 80% // refers to the value that a metric must reach or exceed (or drop below) to trigger an alarm
+     - Period: 5 minutes
+     - Condition: Greater/Equal to 80%
+     - Notification: Send an email via SNS.
