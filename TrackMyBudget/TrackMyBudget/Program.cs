@@ -2,6 +2,7 @@ using Amazon.CloudWatchLogs;
 using Serilog;
 using Serilog.Sinks.AwsCloudWatch;
 using Serilog.Events;
+using Amazon;
 
 internal class Program
 {
@@ -29,7 +30,7 @@ internal class Program
                     CreateLogGroup = true,  // Create the log group if not exists
                     LogStreamNameProvider = new DefaultLogStreamProvider(),
                     TextFormatter = new Serilog.Formatting.Compact.CompactJsonFormatter()  // JSON format for structured logs
-                }, new AmazonCloudWatchLogsClient());  // AWS CloudWatch Logs client
+                }, new AmazonCloudWatchLogsClient(RegionEndpoint.APSoutheast1));  // AWS CloudWatch Logs client
         });
 
         // Register Health Check services
