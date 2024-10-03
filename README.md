@@ -220,11 +220,13 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 ## AWS CloudWatch Logging and Monitoring
 
 * When your application (whether it's running locally, on EC2, or any other environment) needs to interact with AWS services, such as CloudWatch, it requires authentication and authorization to ensure that only authorized applications or users can access those services.
-* Your application needs to authenticate itself to AWS so AWS knows who is trying to access its services. This is typically done using Access Key ID and Secret Access Key (for IAM Users) or using IAM Roles (when running on EC2, Lambda, etc.).
+* Your application needs to authenticate itself to AWS, so AWS knows who is trying to access its services. This is typically done using **Access Key ID** and **Secret Access Key** (for IAM Users) or using IAM Roles (when running on EC2, Lambda, etc.).
 * Even after authenticating the user or application, AWS needs to verify that the authenticated entity has the right permissions to perform actions such as writing logs to CloudWatch.
      - The IAM User or IAM Role needs to have the CloudWatch permissions (like logs:CreateLogStream, logs:PutLogEvents, etc.) to create log streams and send log data to CloudWatch.
      - Since your application is deployed on an EC2 instance, it's recommended to use an IAM Role attached to your EC2 instance instead of using an IAM User with Access Keys.
      - The IAM Role will automatically provide temporary credentials to your EC2 instance for logging to CloudWatch without needing to manually configure access keys. So if we are using IAM Role, then no need to update anything in the Workflows script as well.
+          - Note :: This is only for the EC2. Because from the EC2 Instance Security configs, we can add an IAM Role to the EC2. So we can create an IAM Role with CloudWatchFullAccess and assign it to the EC2. So when your app is running in EC2, you don't want to give any other additional config.
+          - But for your local app and for Docker, you need to use an IAM User with  **Access Key ID**, **Secret Access Key** and **Region** to connect to AWS Service from your local machine. So in local ```aws config``` needs to be done.
 
 * Serilog Configuration:
      - In the Program.cs file, we configured Serilog to handle structured logging.
@@ -252,3 +254,82 @@ http://54.151.251.222/health
 
 1. A dedicated endpoint (usually ```/health```) that reports the health status of the application.
 2. This we can enhance more to check the DB connectivity etc as well.
+
+
+----
+
+## Docker
+* One of Docker’s main advantages is that it eliminates the "it works on my machine" problem. By packaging everything (your code, dependencies, configurations) into a container, your application will run the same whether it's on a developer’s local machine, a testing server, or in production. Containers ensure consistency across development, staging, and production environments.
+* Once you've packaged your application in a Docker container, you can run it anywhere Docker is installed: on your local machine, on a server, or in the cloud (AWS, Azure, etc.).
+* The Docker image you create on your machine is the exact same image that can be deployed on a production server or shared with other developers.
+* Without Docker: You have to manually set up and install the correct versions of libraries, runtime environments, databases, and other dependencies on each machine (developer’s machine, testing server, production server).
+* With Docker: You package everything your application needs in a Docker image and run it as a container. All environments (development, testing, production) use the exact same image, ensuring the application runs the same way everywhere.
+
+   - Dockerfile: A text file with instructions to build a Docker image. It specifies how to set up the container environment (like what OS, what libraries, etc.).
+   - Docker Image: A blueprint for a container. It includes the application code, runtime, and dependencies. Once built, it doesn’t change.
+   - Docker Container: A running instance of a Docker image. It behaves like a lightweight, isolated environment for your application.
+   - Docker Hub: A public registry where Docker images can be stored and shared. You can push your own images or use images from others.
+ 
+* Steps :
+1. Create Dockerfile : A Dockerfile is a simple text file that contains instructions to build a Docker image. It defines the environment where your application will run, such as the base image (e.g., the operating system), dependencies, and commands to run the app.
+      - https://github.com/PBWim/TrackMyBudget/blob/main/TrackMyBudget/TrackMyBudget/Dockerfile
+
+2. Build a Docker Image : The image is essentially a snapshot of your application and environment that will be used to create containers.
+      ```
+         docker build -t trackmybudget-api .
+      ```
+   * ```docker build``` : This command builds a Docker image based on the Dockerfile.
+   * ```-t trackmybudget-api``` : The -t flag allows you to tag your image with a name (trackmybudget-api in this case).
+   * ```.``` : The dot (.) represents the current directory where the Dockerfile and application files are located.
+  
+3. Run a Docker Container : This container will run your application in an isolated environment.
+      ```
+         docker run --name trackmybudget-container -d -p 8080:80 -e AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID> -e AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY> -e AWS_REGION=<AWS_REGION> trackmybudget-api
+      ```
+   * ```docker run``` : This command creates and starts a new container.
+   * ```-d``` : This flag runs the container in detached mode (in the background).
+   * ```-p 8080:80``` : This maps port 80 inside the container to port 8080 on your host machine. So, when you access http://localhost:8080 in your browser, you are accessing the application running inside the container.
+   * ```--name trackmybudget-container``` : Assigns a name (trackmybudget-container) to the container, making it easier to manage.
+   * ```trackmybudget-api``` : The name of the image to use for the container (the one you built in the previous step).
+   * ```-e AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID> -e AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY> -e AWS_REGION=<AWS_REGION>``` : In your local app and for Docker, you need to use an IAM User with  **Access Key ID**, **Secret Access Key** and **Region** to connect to AWS Service from your local machine. So in local execute ```aws config``` and do the needful configurations.
+  
+4. Push the Docker Image to a Container Registry :  This allows you to store the image in a centralized location and deploy it to other environments like production servers or cloud platforms.
+   * Options for Container Registries: **Docker Hub, Amazon ECR (Elastic Container Registry), Azure Container Registry, Google Container Registry**.
+  
+   - Push Image to Docker Hub: Login to Docker Hub and Tag your image with your Docker Hub username (My username is ```pabodhaw```). And then push the image to Docker Hub.
+   - ```
+        docker login
+        docker tag trackmybudget-api pabodhaw/trackmybudget-api
+        docker push pabodhaw/trackmybudget-api
+     ```
+   - If your Docker image is pushed to Docker Hub (a public or private repository), you can pull it directly from there onto your EC2 instance. If you prefer using ECR (which is AWS’s private container registry), you can push your image to ECR instead of Docker Hub.
+   - Once you have pushed the container to the Docker Hub, login to EC2 and install ```Docker```.
+   - ```
+        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222 // Login to EC2
+
+        // Install Docker in the EC2 instance
+        sudo yum update -y
+        sudo yum install docker -y
+        sudo service docker start // Start the Docker service:
+        sudo usermod -a -G docker ec2-user // Add the ec2-user to the Docker group (so you can run Docker commands without sudo):
+        sudo reboot // eboot the instance to apply group changes:
+
+        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222 // Log back into the EC2 instance after rebooting:
+
+        docker --version // Verify Docker is installed:
+     ```
+   - After Docker is installed, You should be able to pull the Docker image from Docker Hub and run it:
+     ```
+        docker pull pabodhaw/trackmybudget-api:latest    // Pull the Docker image from Docker Hub:
+        docker run -d -p 80:80 --name trackmybudget-container pabodhaw/trackmybudget-api:latest // Run the Docker container:
+     ```
+   - After running the ```run``` command, you'll get this error ```Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use.```. Because we are already using default port 80 for Nginx redirection when running the app using the dlls. So we need to stop that nginx and run Docker Run once more.
+     ```
+        docker stop trackmybudget-container // Stop the running container 
+        docker rm trackmybudget-container // Remove the Docker container:
+
+        docker run -d -p 80:80 --name trackmybudget-container pabodhaw/trackmybudget-api:latest
+
+        docker logs trackmybudget-container // Check container logs to see if things run correctly
+     ```
+   - Now check http://54.151.251.222/swagger and make sure things work fine. 
