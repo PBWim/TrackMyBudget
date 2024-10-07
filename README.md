@@ -2,7 +2,7 @@
 
 **TrackMyBudget** is a simple .NET Core Web API for managing budget entries. It supports basic CRUD operations to create, view, update, and delete budget records.
 
-http://54.151.251.222/swagger
+http://54.179.106.222/swagger
 
 ## Features
 - **Create**: Add a new budget entry (category, amount, start date, end date).
@@ -99,7 +99,7 @@ dotnet publish -c Release -o ./publish
 4. Transfer the Published Files to the EC2 Instance: In the same CMD, run the ```scp -i /path/to/your-key.pem -r ./publish ec2-user@<your-ec2-public-ip>:/home/ec2-user/TrackMyBudget``` :
    Transfer your app’s published files from your local machine to the EC2 instance.
 ```
-scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
+scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.179.106.222:/home/ec2-user/TrackMyBudget
 ```
    - ```./publish/*```: This selects all files in the publish directory (the newly built files).
    - ```/home/ec2-user/TrackMyBudget```: This is the destination directory on your EC2 instance where the application files are stored.
@@ -145,7 +145,7 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
        ```
          server {
           listen 80;
-          server_name 54.151.251.222; // This is the Public IP
+          server_name 54.179.106.222; // This is the Public IP
 
           location / {
               proxy_pass http://localhost:5000;
@@ -170,7 +170,7 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 
 10. Access Your API Publicly
     - ```
-         http://54.151.251.222/swagger
+         http://54.179.106.222/swagger
       ```
 
 
@@ -181,12 +181,12 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 1. Rebuild the Application Locally and transfer the Updated Files to EC2 :
    - ```
       dotnet publish -c Release -o ./publish
-      scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.151.251.222:/home/ec2-user/TrackMyBudget
+      scp -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" -r ./publish/* ec2-user@54.179.106.222:/home/ec2-user/TrackMyBudget
      ```
 
 2. Restart Your Application on EC2 and Navigate to the project directory.
    - ```
-      ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222
+      ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.179.106.222
       cd /home/ec2-user/TrackMyBudget
      ```
 
@@ -250,7 +250,7 @@ dotnet /home/ec2-user/TrackMyBudget/TrackMyBudget.dll --urls "http://*:5000"
 ----
 
 ## Health Check
-http://54.151.251.222/health
+http://54.179.106.222/health
 
 1. A dedicated endpoint (usually ```/health```) that reports the health status of the application.
 2. This we can enhance more to check the DB connectivity etc as well.
@@ -305,7 +305,7 @@ http://54.151.251.222/health
    - If your Docker image is pushed to Docker Hub (a public or private repository), you can pull it directly from there onto your EC2 instance. If you prefer using ECR (which is AWS’s private container registry), you can push your image to ECR instead of Docker Hub.
    - Once you have pushed the container to the Docker Hub, login to EC2 and install ```Docker```.
    - ```
-        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222 // Login to EC2
+        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.179.106.222 // Login to EC2
 
         // Install Docker in the EC2 instance
         sudo yum update -y
@@ -314,7 +314,7 @@ http://54.151.251.222/health
         sudo usermod -a -G docker ec2-user // Add the ec2-user to the Docker group (so you can run Docker commands without sudo):
         sudo reboot // eboot the instance to apply group changes:
 
-        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.151.251.222 // Log back into the EC2 instance after rebooting:
+        ssh -i "C:\Users\PBWim\Documents\Pabodha\Projects\TrackMyBudget\TrackMyBudgetKey.pem" ec2-user@54.179.106.222 // Log back into the EC2 instance after rebooting:
 
         docker --version // Verify Docker is installed:
      ```
@@ -332,4 +332,4 @@ http://54.151.251.222/health
 
         docker logs trackmybudget-container // Check container logs to see if things run correctly
      ```
-   - Now check http://54.151.251.222/swagger and make sure things work fine. 
+   - Now check http://54.179.106.222/swagger and make sure things work fine. 
