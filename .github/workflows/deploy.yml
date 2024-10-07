@@ -19,7 +19,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username (saved in GitHub Secrets)
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub password (saved in GitHub Secrets)
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub personal access token (saved in GitHub Secrets)
 
       # Step 3: Run Unit Tests
       - name: Run Unit Tests
