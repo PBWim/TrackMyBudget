@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    image: trackmybudget-api
+    build:
+      context: ./TrackMyBudget # Ensure this path points to the directory containing your Dockerfile
+      dockerfile: Dockerfile # Ensure the Dockerfile is named Dockerfile and is in the context directory
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}  # Use environment variable for .NET environment
