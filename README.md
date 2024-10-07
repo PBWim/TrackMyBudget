@@ -321,14 +321,14 @@ http://54.151.251.222/health
    - After Docker is installed, You should be able to pull the Docker image from Docker Hub and run it:
      ```
         docker pull pabodhaw/trackmybudget-api:latest    // Pull the Docker image from Docker Hub:
-        docker run -d -p 80:80 --name trackmybudget-container pabodhaw/trackmybudget-api:latest // Run the Docker container:
+        docker run -d -p 80:80 --name trackmybudget-container --env ASPNETCORE_ENVIRONMENT=Production pabodhaw/trackmybudget-api:latest // Run the Docker container:
      ```
    - After running the ```run``` command, you'll get this error ```Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use.```. Because we are already using default port 80 for Nginx redirection when running the app using the dlls. So we need to stop that nginx and run Docker Run once more.
      ```
         docker stop trackmybudget-container // Stop the running container 
         docker rm trackmybudget-container // Remove the Docker container:
 
-        docker run -d -p 80:80 --name trackmybudget-container pabodhaw/trackmybudget-api:latest
+        docker run -d -p 80:80 --name trackmybudget-container --env ASPNETCORE_ENVIRONMENT=Production pabodhaw/trackmybudget-api:latest
 
         docker logs trackmybudget-container // Check container logs to see if things run correctly
      ```
