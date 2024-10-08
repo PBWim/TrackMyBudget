@@ -4,15 +4,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy the project files and restore any dependencies
-COPY *.csproj ./
+# Copy the solution file and restore dependencies
+COPY TrackMyBudget.sln ./
+COPY TrackMyBudget.Core/TrackMyBudget.Core.csproj ./TrackMyBudget.Core/
+COPY TrackMyBudget.Infrastructure/TrackMyBudget.Infrastructure.csproj ./TrackMyBudget.Infrastructure/
+COPY TrackMyBudget.Application/TrackMyBudget.Application.csproj ./TrackMyBudget.Application/
+COPY TrackMyBudget.Tests/TrackMyBudget.Tests.csproj ./TrackMyBudget.Tests/
 RUN dotnet restore
 
-# Copy the rest of the application files
+# Copy all project files and build the applicatio
 COPY . ./
 
 # Build the project and publish it to the out directory (Builds and publishes the application in the Release configuration.)
-RUN dotnet publish -c Release -o out
+WORKDIR /app/TrackMyBudget.Application
+RUN dotnet publish -c Release -o /app/out
 
 # Stage 2: Build the runtime image - for running the application
 # Stage 2 (Runtime): The second stage uses the compiled files from the first stage and prepares 
@@ -20,7 +25,10 @@ RUN dotnet publish -c Release -o out
 # the compiled application and the ASP.NET Core runtime, not the full SDK.
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out ./
+
+
+# Copy the published output from the build stage
+COPY --from=build /app/out .
 
 # Expose port 80 for the application
 # This exposes port 80 inside the container. You can use this to map your application to a port on the host machine.
