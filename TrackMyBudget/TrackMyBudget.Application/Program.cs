@@ -3,6 +3,10 @@ using Serilog;
 using Serilog.Sinks.AwsCloudWatch;
 using Serilog.Events;
 using Amazon;
+using Microsoft.EntityFrameworkCore;
+using TrackMyBudget.Infrastructure.Data;
+using TrackMyBudget.Core.Contract;
+using TrackMyBudget.Infrastructure.Implementation;
 
 internal class Program
 {
@@ -32,6 +36,14 @@ internal class Program
                     TextFormatter = new Serilog.Formatting.Compact.CompactJsonFormatter()  // JSON format for structured logs
                 }, new AmazonCloudWatchLogsClient(RegionEndpoint.APSoutheast1));  // AWS CloudWatch Logs client
         });
+
+        // Register ApplicationDbContext with the DI container
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        // Register UnitOfWork and repositories with DI
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
         // Register Health Check services
         builder.Services.AddHealthChecks();

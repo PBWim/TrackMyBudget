@@ -1,4 +1,4 @@
-﻿namespace Tests.Helper
+﻿namespace TrackMyBudget.Tests.Helper
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class TestPriorityAttribute : Attribute

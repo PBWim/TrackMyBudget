@@ -1,41 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TrackMyBudget.Models;
+using TrackMyBudget.Core.Contract;
+using TrackMyBudget.Core.Models;
 
-namespace TrackMyBudget.Controllers
+namespace TrackMyBudget.Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class BudgetsController : Controller
     {
-        public static readonly List<Budget> Budgets = [];
         private readonly ILogger<BudgetsController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BudgetsController(ILogger<BudgetsController> logger)
+        public BudgetsController(ILogger<BudgetsController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/budgets
         [HttpGet]
-        public ActionResult<IEnumerable<Budget>> GetBudgets()
+        public async Task<ActionResult> GetBudgets()
         {
             _logger.LogInformation("GetBudgets action called.");
+            var budgets = await _unitOfWork.Budgets.GetAllAsync();
 
-            if (Budgets.Count == 0)
+            if (budgets == null || !budgets.Any())
             {
                 _logger.LogWarning("No budgets found.");
             }
 
-            return Ok(Budgets);
+            return Ok(budgets);
         }
 
         // GET: api/budgets/{id}
         [HttpGet("{id}")]
-        public ActionResult<Budget> GetBudget(Guid id)
+        public async Task<ActionResult> GetBudget(Guid id)
         {
             _logger.LogInformation("GetBudget action called with id: {Id}", id);
 
-            var budget = Budgets.FirstOrDefault(b => b.Id == id);
+            var budget = await _unitOfWork.Budgets.GetByIdAsync(id);
             if (budget == null)
             {
                 _logger.LogWarning("Budget with id {Id} not found.", id);
@@ -48,12 +51,13 @@ namespace TrackMyBudget.Controllers
 
         // POST: api/budgets
         [HttpPost]
-        public ActionResult<Budget> CreateBudget(Budget budget)
+        public async Task<ActionResult> CreateBudget(Budget budget)
         {
             _logger.LogInformation("CreateBudget action called.");
 
             budget.Id = Guid.NewGuid();
-            Budgets.Add(budget);
+            await _unitOfWork.Budgets.AddAsync(budget);
+            await _unitOfWork.CommitAsync();
 
             _logger.LogInformation("Budget created successfully with id {Id}.", budget.Id);
 
@@ -62,11 +66,11 @@ namespace TrackMyBudget.Controllers
 
         // PUT: api/budgets/{id}
         [HttpPut("{id}")]
-        public IActionResult UpdateBudget(Guid id, Budget updatedBudget)
+        public async Task<IActionResult> UpdateBudget(Guid id, Budget updatedBudget)
         {
             _logger.LogInformation("UpdateBudget action called with id: {Id}", id);
 
-            var budget = Budgets.FirstOrDefault(b => b.Id == id);
+            var budget = await _unitOfWork.Budgets.GetByIdAsync(id);
             if (budget == null)
             {
                 _logger.LogWarning("Budget with id {Id} not found for update.", id);
@@ -78,6 +82,9 @@ namespace TrackMyBudget.Controllers
             budget.StartDate = updatedBudget.StartDate;
             budget.EndDate = updatedBudget.EndDate;
 
+            _unitOfWork.Budgets.Update(budget);
+            await _unitOfWork.CommitAsync();
+
             _logger.LogInformation("Budget with id {Id} updated successfully.", id);
 
             return NoContent();
@@ -85,18 +92,20 @@ namespace TrackMyBudget.Controllers
 
         // DELETE: api/budgets/{id}
         [HttpDelete("{id}")]
-        public IActionResult DeleteBudget(Guid id)
+        public async Task<IActionResult> DeleteBudget(Guid id)
         {
             _logger.LogInformation("DeleteBudget action called with id: {Id}", id);
 
-            var budget = Budgets.FirstOrDefault(b => b.Id == id);
+            var budget = await _unitOfWork.Budgets.GetByIdAsync(id);
             if (budget == null)
             {
                 _logger.LogWarning("Budget with id {Id} not found for deletion.", id);
                 return NotFound();
             }
 
-            Budgets.Remove(budget);
+            _unitOfWork.Budgets.Remove(budget);
+            await _unitOfWork.CommitAsync();
+
             _logger.LogInformation("Budget with id {Id} deleted successfully.", id);
 
             return NoContent();

@@ -1,7 +1,7 @@
 ﻿using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Tests.Helper
+namespace TrackMyBudget.Tests.Helper
 {
     public class PriorityOrderer : ITestCaseOrderer
     {

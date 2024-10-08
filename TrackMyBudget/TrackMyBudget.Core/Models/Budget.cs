@@ -1,4 +1,4 @@
-﻿namespace TrackMyBudget.Models
+﻿namespace TrackMyBudget.Core.Models
 {
     public class Budget
     {
