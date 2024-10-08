@@ -24,13 +24,13 @@ jobs:
       # Step 3: Run Unit Tests
       - name: Run Unit Tests
         run: |
-          cd TrackMyBudget/Tests  # Change this path to where your test project is located
+          cd TrackMyBudget/TrackMyBudget.Tests  # Change this path to where your test project is located
           dotnet test
 
       # Step 4: Build and Push Docker Image to Docker Hub
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest -f ./TrackMyBudget/TrackMyBudget/Dockerfile ./TrackMyBudget/TrackMyBudget
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest -f ./TrackMyBudget/TrackMyBudget.Application/Dockerfile ./TrackMyBudget/TrackMyBudget
           docker push ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest
 
   deploy:
