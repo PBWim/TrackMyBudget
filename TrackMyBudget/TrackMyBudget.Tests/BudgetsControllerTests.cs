@@ -35,7 +35,7 @@ namespace TrackMyBudget.Tests
         public async Task GetBudgets_ReturnsOkResult_WithListOfBudgets()
         {
             // Arrange
-            var budgets = new List<Budget> { new Budget { Id = Guid.NewGuid(), Category = "Test", Amount = 100 } };
+            var budgets = new List<Budget> { new() { Id = Guid.NewGuid(), Category = "Test", Amount = 100 } };
             _mockBudgetRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(budgets);
 
             // Act
@@ -51,7 +51,7 @@ namespace TrackMyBudget.Tests
         public async Task GetBudgets_ReturnsEmptyList_WhenNoBudgets()
         {
             // Arrange
-            _mockBudgetRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(new List<Budget>());
+            _mockBudgetRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync([]);
 
             // Act
             var result = await _controller.GetBudgets();

@@ -41,6 +41,9 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        // Register DB Migration service 
+        builder.Services.AddScoped<DatabaseMigrationService>();
+
         // Register UnitOfWork and repositories with DI
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
@@ -53,6 +56,13 @@ internal class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
+
+        // Call migration service at startup
+        using (var scope = app.Services.CreateScope())
+        {
+            var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService>();
+            migrationService.MigrateDatabase();  // Call the migration logic
+        }
 
         // Enable health check endpoint
         app.UseHealthChecks("/health");
