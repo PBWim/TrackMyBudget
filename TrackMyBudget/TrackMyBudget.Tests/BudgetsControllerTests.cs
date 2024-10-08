@@ -51,7 +51,7 @@ namespace TrackMyBudget.Tests
         public async Task GetBudgets_ReturnsEmptyList_WhenNoBudgets()
         {
             // Arrange
-            _mockBudgetRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync([]);
+            _mockBudgetRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(new List<Budget>());
 
             // Act
             var result = await _controller.GetBudgets();
