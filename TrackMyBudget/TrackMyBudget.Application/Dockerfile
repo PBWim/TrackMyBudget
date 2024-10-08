@@ -10,10 +10,12 @@ COPY TrackMyBudget.Core/TrackMyBudget.Core.csproj ./TrackMyBudget.Core/
 COPY TrackMyBudget.Infrastructure/TrackMyBudget.Infrastructure.csproj ./TrackMyBudget.Infrastructure/
 COPY TrackMyBudget.Application/TrackMyBudget.Application.csproj ./TrackMyBudget.Application/
 COPY TrackMyBudget.Tests/TrackMyBudget.Tests.csproj ./TrackMyBudget.Tests/
+
+# Restore all dependencies
 RUN dotnet restore
 
-# Copy all project files and build the applicatio
-COPY . ./
+# Copy the remaining files
+COPY . .
 
 # Build the project and publish it to the out directory (Builds and publishes the application in the Release configuration.)
 WORKDIR /app/TrackMyBudget.Application
