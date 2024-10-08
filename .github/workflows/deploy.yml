@@ -30,7 +30,7 @@ jobs:
       # Step 4: Build and Push Docker Image to Docker Hub
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest -f ./TrackMyBudget/TrackMyBudget.Application/Dockerfile ./TrackMyBudget/TrackMyBudget
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest -f ./TrackMyBudget/TrackMyBudget.Application/Dockerfile ./TrackMyBudget/TrackMyBudget.Application
           docker push ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest
 
   deploy:
