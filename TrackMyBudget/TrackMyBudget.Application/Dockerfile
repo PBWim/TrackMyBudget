@@ -4,18 +4,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy the solution file and restore dependencies
-COPY TrackMyBudget.sln ./
-COPY TrackMyBudget.Core/TrackMyBudget.Core.csproj ./TrackMyBudget.Core/
-COPY TrackMyBudget.Infrastructure/TrackMyBudget.Infrastructure.csproj ./TrackMyBudget.Infrastructure/
-COPY TrackMyBudget.Application/TrackMyBudget.Application.csproj ./TrackMyBudget.Application/
-COPY TrackMyBudget.Tests/TrackMyBudget.Tests.csproj ./TrackMyBudget.Tests/
+# Copy the solution file
+COPY TrackMyBudget/TrackMyBudget.sln ./
+
+# Copy project files and restore dependencies
+COPY TrackMyBudget/TrackMyBudget.Core/TrackMyBudget.Core.csproj ./TrackMyBudget.Core/
+COPY TrackMyBudget/TrackMyBudget.Infrastructure/TrackMyBudget.Infrastructure.csproj ./TrackMyBudget.Infrastructure/
+COPY TrackMyBudget/TrackMyBudget.Application/TrackMyBudget.Application.csproj ./TrackMyBudget.Application/
+COPY TrackMyBudget/TrackMyBudget.Tests/TrackMyBudget.Tests.csproj ./TrackMyBudget.Tests/
 
 # Restore all dependencies
 RUN dotnet restore
 
 # Copy the remaining files
-COPY . .
+COPY TrackMyBudget/ .
 
 # Build the project and publish it to the out directory (Builds and publishes the application in the Release configuration.)
 WORKDIR /app/TrackMyBudget.Application
