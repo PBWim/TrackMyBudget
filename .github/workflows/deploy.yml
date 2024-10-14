@@ -52,5 +52,5 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest
             docker stop trackmybudget-container || true
             docker rm trackmybudget-container || true
-            docker run -d -p 80:80 --name trackmybudget-container --env ASPNETCORE_ENVIRONMENT=Production ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest
+            docker run -d -p 80:8080 --name trackmybudget-container --env ASPNETCORE_ENVIRONMENT=Production ${{ secrets.DOCKER_USERNAME }}/trackmybudget-api:latest
           EOF

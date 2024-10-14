@@ -36,7 +36,7 @@ COPY --from=build /app/out .
 
 # Expose port 80 for the application
 # This exposes port 80 inside the container. You can use this to map your application to a port on the host machine.
-EXPOSE 80
+EXPOSE 8080
 
 # Set the entry point for the application
 # This command tells Docker to start your application by running ''dotnet TrackMyBudget.dll' when the container is started.
